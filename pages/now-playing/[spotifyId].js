@@ -6,30 +6,25 @@ import SongCard from "../../components/song-card";
 const prisma = new PrismaClient();
 
 export default function CurrentlyPlayingOverlay({ refreshToken }) {
-  const [song, setSong] = useState();
-
-  const fetchSong = async () => {
-    const song = await fetch(
-      `/api/now-playing?refreshToken=${refreshToken}`
-    ).then((res) => res.json());
-
-    setSong(song);
-  };
+  const [song, setSong] = useState({ duration: 0, progress: 0 });
 
   useEffect(() => {
-    fetchSong();
-  }, []);
-
-  useEffect(() => {
-    if (song) {
-      const timer = setTimeout(() => {
-        fetchSong();
-      }, song.duration - song.progress);
-      return () => clearTimeout(timer);
-    }
+    const delay = song.duration - song.progress;
+    console.log(
+      `Current song: ${
+        song.title || "No current song"
+      }\nSetting timeout for ${delay}`
+    );
+    const timer = setTimeout(() => {
+      console.log("Fetching current song.");
+      fetch(`/api/now-playing?refreshToken=${refreshToken}`)
+        .then((res) => res.json())
+        .then((song) => setSong(song));
+    }, delay);
+    return () => clearTimeout(timer);
   }, [song]);
 
-  return <>{song && <SongCard song={song} />}</>;
+  return <>{song.title && <SongCard song={song} />}</>;
 }
 
 export async function getServerSideProps(context) {
