@@ -22,7 +22,7 @@ export default function CurrentlyPlayingOverlay({ refreshToken }) {
         .then((song) => setSong(song));
     }, delay);
     return () => clearTimeout(timer);
-  }, [song]);
+  }, [song, refreshToken]);
 
   return <>{song.title && <SongCard song={song} />}</>;
 }
