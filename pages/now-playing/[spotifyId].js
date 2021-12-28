@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { PrismaClient } from "@prisma/client";
 
-import SongCard from "../../components/song-card";
+import SongCard from "@components/song-card";
 
 const prisma = new PrismaClient();
 
 export default function CurrentlyPlayingOverlay({ refreshToken }) {
-  const [song, setSong] = useState({ duration: 0, progress: 0 });
+  const [song, setSong] = useState({
+    duration: 0,
+    isPlaying: true,
+    progress: 0
+  });
 
   useEffect(() => {
+    if (!song.isPlaying) {
+      return;
+    }
     const delay = song.duration - song.progress;
     console.log(
       `Current song: ${
@@ -24,7 +31,17 @@ export default function CurrentlyPlayingOverlay({ refreshToken }) {
     return () => clearTimeout(timer);
   }, [song, refreshToken]);
 
-  return <>{song.title && <SongCard song={song} />}</>;
+  return (
+    <>
+      {song.isPlaying ? (
+        <SongCard song={song} />
+      ) : (
+        <div>
+          No song playing. Please start Spotify and refresh the browser source.
+        </div>
+      )}
+    </>
+  );
 }
 
 export async function getServerSideProps(context) {
@@ -41,5 +58,5 @@ export async function getServerSideProps(context) {
     }
   });
 
-  return { props: { spotifyId, refreshToken: account.refresh_token } };
+  return { props: { spotifyId, refreshToken: account?.refresh_token } };
 }

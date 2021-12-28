@@ -25,7 +25,8 @@ export default NextAuth({
           accounts: {
             select: {
               access_token: true,
-              refresh_token: true
+              refresh_token: true,
+              providerAccountId: true
             },
             where: {
               provider: "spotify"
@@ -38,6 +39,7 @@ export default NextAuth({
       });
       session.access_token = findUnique.accounts[0].access_token;
       session.refresh_token = findUnique.accounts[0].refresh_token;
+      session.providerAccountId = findUnique.accounts[0].providerAccountId;
       return session;
     }
   }
